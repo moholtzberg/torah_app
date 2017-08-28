@@ -1,0 +1,51 @@
+/*
+ * This is a manifest file that'll be compiled into application.css, which will include all the files
+ * listed below.
+ *
+ * Any CSS and SCSS file within this directory, lib/assets/stylesheets, vendor/assets/stylesheets,
+ * or any plugin's vendor/assets/stylesheets directory can be referenced here using a relative path.
+ *
+ * You're free to add application-wide styles to this file and they'll appear at the bottom of the
+ * compiled file so the styles you add here take precedence over styles defined in any other CSS/SCSS
+ * files in this directory. Styles in this file should be added after the last require_* statement.
+ * It is generally better to create a new file per style scope.
+ *
+ *= require_tree .
+ *= require_self
+ */
+
+.video-call-link {
+  color: blue;
+}
+
+.video-call-link:hover {
+  cursor: pointer;
+}
+
+#video-chat {
+  position:relative;
+  width: 1000px;
+}
+
+#webcam-preview {
+  width:300px;
+  position: absolute;
+  right: 0;
+  bottom: 0;
+
+  video {
+    width:inherit;
+  }
+
+}
+
+#participants-webcams {
+  width:1000px;
+
+  .webcam {
+    width:inherit;
+    video {
+      width:inherit;
+    }
+  }
+}

@@ -1,0 +1,6 @@
+<h1>User <%= @user.email %></h1>
+<% if @chatroom %>
+  <%= link_to "Go to dialog", chatroom_path(@chatroom.id) %>
+<% else %>
+  <%= link_to "Send message", new_chatroom_path(@user.id), method: :post %>
+<% end %>
