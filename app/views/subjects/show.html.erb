@@ -1,0 +1,47 @@
+<div id="subject">
+  <div id="banner">
+    <%= image_tag(@subject.banner_url, class: "img-rounded img-responsive") if @subject.banner? %>
+    <div id="subject-name">
+      <h1>
+        <%= @subject.name %>
+        <% if current_user %>
+        <% if @subject.interests.find_by(user: current_user) %>
+        <%= link_to '',"#", class: "unlike-button glyphicon glyphicon-star", data: { id: @subject.id } %>
+      <% else %>
+        <%= link_to '',"#", class: "like-button glyphicon glyphicon-star-empty", data: { id: @subject.id }  %>
+        <% end %>
+        <% end %>
+      </h1>
+      <% if @subject.featured %>
+      <div class="glyphicon glyphicon-thumbs-up"></div>
+      <strong>
+        featured</strong>
+      <% end %>
+    </div>
+  </div>
+
+  <h3><%= @subject.headline %></h3>
+
+  <p><%= @subject.description %></p>
+
+  <% if current_user && current_user.admin? %>
+  <%= link_to 'Edit', edit_subject_path(@subject) %>
+  <% end %>
+
+  <%= link_to 'Back', subjects_path %>
+
+  <h3>
+    Interested users
+  </h3>
+
+  <% if current_user %>
+  <ul id="interested-users-list" class="list-group">
+    <%= render @subject.users %>
+  </ul>
+<% else %>
+  <strong>
+    <%= @subject.users.count %>
+    users are interested in this subject
+  </strong>
+  <% end %>
+</div>

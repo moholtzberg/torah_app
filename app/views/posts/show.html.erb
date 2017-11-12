@@ -1,0 +1,8 @@
+<h1><%= @post.title %></h1>
+<p><%= @post.body %></p>
+<small><i><%= post_time(@post)%></i></small>
+<hr />
+<% if current_user && @organization.has_admin?(current_user)%>
+  <%= link_to 'Edit', edit_organization_post_path(@organization, @post), class: "btn btn-info" %>
+<% end %>
+<%= link_to 'Back', @organization, class: "btn btn-primary" %>

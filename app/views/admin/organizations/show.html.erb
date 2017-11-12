@@ -1,0 +1,28 @@
+<div id="organization">
+  <div id="banner">
+    <%= image_tag(@organization.banner_url, class: "img-rounded img-responsive") if @organization.banner? %>
+    <h1 id="organization-name">Banner</h1>
+  </div>
+  <h4>Thumbnail</h4>
+  <%= image_tag(@organization.thumbnail_url, class: "img-rounded img-responsive", size: "64x64")%>
+
+  <h4>Founder</h4>
+  <%= link_to @organization.founder.name, @organization.founder %>
+
+  <h4>Headline: </h4>
+  <%= @organization.headline %>
+
+  <h4>Description </h4>
+  <%= @organization.description %>
+  <br />
+  <br />
+
+  <% unless @organization.confirmed_at %>
+    <%= link_to 'Confirm organization', admin_organization_confirm_path(@organization.id), method: :patch, data: { confirm: 'Confirm' }, class: "btn btn-success" %>
+  <% else %>
+    <h3>Confirmed</h3>
+  <% end %>
+
+  <hr />
+  <%= link_to 'Back', admin_organizations_path, class: "btn btn-primary" %>
+</div>

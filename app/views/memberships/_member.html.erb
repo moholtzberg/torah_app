@@ -1,0 +1,19 @@
+<li class="list-group-item clearfix">
+    <%= link_to member, class: "pull-left" do %>
+      <%= image_tag(member.avatar_url, class: "avatar") %>
+      <div class="status"><div class="<%= member.status %>"></div></div>
+    <% end %>
+
+    <%= link_to member do %>
+      <%= member.name %>
+    <% end %> |
+
+    <%= member.memberships.find_by(organization_id: @organization.id).role %>
+
+
+    <% if current_user.id == @organization.founder_id %>
+     <%= link_to "admin", organization_change_role_path(@organization, member, "admin"), method: :patch %>
+    <%= link_to "moderator", organization_change_role_path(@organization, member, "moderator"), method: :patch %>
+    <%= link_to "member", organization_change_role_path(@organization, member, "member"), method: :patch %>
+    <% end %>
+</li>

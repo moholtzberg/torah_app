@@ -1,0 +1,39 @@
+<div id= "chatroom">
+  <div id="messages"  data-chatroom-id="<%= @chatroom.id %>" >
+    <% @messages.each do |message| %>
+      <%= render message, with_edit_form: current_user == message.user.id %>
+    <% end %>
+  </div>
+
+  <%= form_for @message, url: '#' do |f| %>
+    <div class="form-group">
+      <%= f.text_area :body, class: 'form-control', rows: 3, placeholder: "Write a reply..." %>
+    </div>
+
+    <%= f.submit "Send", class: 'btn btn-primary pull-right', data: { disable_with: false } %>
+  <% end %>
+  <button id="call-button" class="btn btn-info">Call</button>
+  <% unless @chatroom.organization_id %>
+    <button class="invite-list-button btn btn-success">Add user</button>
+  <% end %>
+</div>
+
+<div class="col-offset-lg-2 col-lg-8">
+  <ul id="invite-users-list" class="list-group">
+    <button class="invite-list-button btn btn-alert">Close</button>
+  </ul>
+</div>
+
+
+<div id="video-chat">
+  <div id="participants-webcams" class= "col-lg-12">
+    <div id="no-participants"> Waiting other participants to join</div>
+  </div>
+  <div id="webcam-preview"></div>
+  <div id="chat-controls">
+    <span id="call-timer"></span>
+    <%= image_tag("hang_up_button.png", id: "hang-up-button") %>
+  </div>
+</div>
+
+<script src="//media.twiliocdn.com/sdk/js/video/v1/twilio-video.min.js"></script>

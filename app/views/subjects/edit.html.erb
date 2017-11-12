@@ -1,0 +1,8 @@
+<h1>Editing Subject</h1>
+
+<%= render 'form', subject: @subject %>
+
+
+<%= link_to 'Destroy', @subject, method: :delete, data: { confirm: 'Are you sure?' } %> |
+<%= link_to 'Show', @subject %> |
+<%= link_to 'Back', subjects_path %>

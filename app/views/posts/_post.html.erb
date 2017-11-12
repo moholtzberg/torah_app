@@ -1,0 +1,12 @@
+<li class="subject list-group-item clearfix">
+  <div class="media">
+    <div class="media-body">
+      <h4 class="media-heading"><%= post.title %></h4>
+      <%= post.body %>
+      <hr />
+      <small><%= link_to "Go to post page", organization_post_path(organization, post) %></small>
+      <small><i><%= post_time(post)%></i></small>
+
+    </div>
+  </div>
+</li>

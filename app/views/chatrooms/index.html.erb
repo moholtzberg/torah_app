@@ -1,0 +1,12 @@
+<h2>Chatrooms</h2>
+<ul id="chatrooms-list" class="list-group">
+  <% @chatrooms.each do |chatroom| %>
+    <li class="list-group-item clearfix">
+      <% if chatroom.organization_id? %>
+        <%= link_to chatroom.organization.name, chatroom %> <small>organization chat</small>
+      <% else %>
+      <%= link_to chatroom.participants_name_without(@current_user), chatroom %>
+        <% end%>
+    </li>
+  <% end %>
+</ul>

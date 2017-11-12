@@ -1,0 +1,25 @@
+<li class="subject list-group-item clearfix">
+  <%= link_to subject, class: "pull-left" do %>
+    <%= image_tag(subject.thumbnail_url, class: "thumbnail img-rounded", size: "64x64") %>
+  <% end %>
+
+  <strong> <%= link_to subject.name, subject %></strong>
+
+  <% if current_user %>
+    <% if subject.interests.find_by(user: current_user) %>
+      <%= link_to '',"#", class: "unlike-button glyphicon glyphicon-star", data: { id: subject.id } %>
+    <% else %>
+      <%= link_to '',"#", class: "like-button glyphicon glyphicon-star-empty", data: { id: subject.id }  %>
+    <% end %>
+
+    <% if current_user.admin? %>
+      <%= link_to 'Edit', edit_subject_path(subject) %>
+    <% end %>
+  <% end %>
+
+  <h4><%= subject.headline %></h4>
+
+  <% if local_assigns[:without_nested].nil? && subject.children.exists? %>
+    <%= render partial: "nested_subjects", locals: { subjects: subject.children, id: rand(1..27101997) } %>
+  <% end %>
+</li>

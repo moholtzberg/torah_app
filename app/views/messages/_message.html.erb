@@ -1,0 +1,38 @@
+<div class="media msg" data-id="<%= message.id %>" data-author-id="<%= message.user.id %>">
+
+    <%= link_to message.user, class: "pull-left" do %>
+      <%= image_tag(message.user.avatar_url, class: "media-object avatar") %>
+      <div class="status"><div class="<%= message.user.status %>"></div></div>
+    <% end %>
+
+    <div class="media-body">
+        <small class="pull-right">
+          <span class="edit-message">edit</span>
+          <span class="time">
+            <% if message.updated_at == message.created_at %>
+               <%= message_time(message.created_at) %>
+            <% else %>
+              edited <%= message_time(message.updated_at) %>
+            <% end %>
+          </span>
+        </small>
+        <h5 class="author media-heading"><%= message.user.name %></h5>
+        <div class="col-lg-10">
+            <div class="msg-body">
+              <%= message.body %>
+            </div>
+            <div class="edit-form">
+              <button class="btn btn-danger edit-form-cancel">Cancel</button>
+              <%= form_for message, url: '#' do |f| %>
+                <div class="form-group">
+                  <%= f.text_area :body, class: 'form-control' %>
+                </div>
+
+                <%= f.hidden_field :id, value: message.id %>
+
+                <%= f.submit "Update", class: 'btn btn-primary pull-right' %>
+              <% end %>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,50 @@
+<div id="organization">
+  <div id="banner">
+    <%= image_tag(@organization.banner_url, class: "img-rounded img-responsive") if @organization.banner? %>
+    <div id="organization-name">
+      <h1><%= @organization.name %></h1>
+    </div>
+  </div>
+
+  <h4>Founded by
+    <%= link_to @organization.founder.name, @organization.founder %>
+    in
+    <%= @organization.created_at.strftime('%d %B %Y') %></h4>
+  <h5>
+    <%= @organization.name %>
+    has
+    <%= @organization.members.count %>
+    members
+    <% if current_user && @organization.has_member?(current_user) %>
+    <%= link_to "Go to members list", organization_members_path(@organization) %>
+    <% end %>
+  </h5>
+
+  <h3><%= @organization.headline %></h3>
+
+  <p><%= @organization.description %></p>
+
+  <% if @organization.has_member?(current_user) %>
+  <%= link_to 'Go to chatroom', @organization.chatroom, class: "btn btn-primary" %>
+  <% end %>
+
+  <% if current_user && !@organization.has_founder?(current_user) %>
+  <% if @organization.has_member?(current_user) %>
+  <%= link_to 'Leave', organization_cancel_invite_path(@organization), method: :delete, class: "btn btn-danger", data: { confirm: "Are you sure?"}  %>
+  <% elsif  @organization.has_candidate?(current_user)%>
+  <%= link_to 'Cancel invite', organization_cancel_invite_path(@organization), method: :delete, class: "btn btn-danger", data: { confirm: "Are you sure?"}  %>
+<% else %>
+  <%= link_to 'Become a member', organization_send_invite_path(@organization), method: :post, class: "btn btn-success" %>
+  <% end %>
+  <% end %>
+
+  <%= link_to 'Back', organizations_path, class: "btn btn-default" %>
+  <hr/>
+  <% if current_user && @organization.has_admin?(current_user) %>
+  <%= link_to "New post", new_organization_post_path(@organization), class: "btn btn-info" %>
+  <% end %>
+  <h2>Last news</h2>
+  <div id="posts-list" class="list-group">
+    <%= render @posts, organization: @organization %>
+  </div>
+</div>

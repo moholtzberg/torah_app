@@ -1,0 +1,7 @@
+<%= link_to "", "#colapse-#{id}", class: "glyphicon glyphicon-chevron-down","data-toggle" => "collapse" %>
+
+<div id="<%= "colapse-#{id}" %>" class="collapse">
+  <ul class="list-group">
+    <%= render subjects, current_user: current_user %>
+  </ul>
+</div>

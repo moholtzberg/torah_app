@@ -1,0 +1,49 @@
+<div id="lessons-time" data-lessons="<%= Lesson.time_for(current_user, @user) %>"></div>
+<div id="current-user-availability" data-availability="<%= current_user.availability.to_json %>"></div>
+<div id="user-availability" data-availability="<%= @user.availability.to_json %>"></div>
+
+<%= link_to "Back to #{@user.name} profile", user_path(@lesson.receiver_id) %>
+
+<hr/>
+
+<%= form_for [@user, @lesson], url: user_lessons_path do |f| %>
+  <%= errors_for(@lesson) %>
+
+  <%= f.hidden_field :sender_id %>
+  <%= f.hidden_field :receiver_id %>
+
+  <div class="form-group">
+    <%= f.label :message %>
+    <%= f.text_area :message, rows: 4,  class: "form-control" %>
+  </div>
+
+  <div class="form-group">
+    <%= f.label :subject %>
+    <%= f.hidden_field :subject_id %>
+    <input id="subject_picker" autocomplete="off" list="subject_options" class="form-control" />
+    <datalist id="subject_options">
+	  </datalist>
+  </div>
+
+  <div class="lesson">
+    <div class="form-group">
+      <%= f.label :starts_at %>
+      <%= f.text_field :starts_at_date, class: "date start" %>
+      <%= f.text_field :starts_at_time, class: "time start" %>
+    </div>
+    <div class="form-group">
+      <%= f.label :ends_at %>
+      <%= f.text_field :ends_at_date, class: "date end" %>
+      <%= f.text_field :ends_at_time, class: "time end" %>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <%= f.label :recurring %>
+    <%= f.check_box :recurring %>
+  </div>
+
+  <div class="actions">
+    <%= f.submit class: "btn btn-success" %>
+  </div>
+<% end %>

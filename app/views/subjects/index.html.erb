@@ -1,0 +1,31 @@
+<br />
+
+<div class="col-lg-3">
+  <% if current_user && current_user.admin? %>
+    <%= button_to 'New Subject', new_subject_path, class: "btn btn-primary", method: "get" %>
+  <% end %>
+
+  <form id="search-form">
+    <label>Name</label>
+    <input type="text" class="form-control" id="name" value="<%= @name %>" />
+
+    <div class="checkbox">
+      <label><input id="featured" type="checkbox">featured</label>
+    </div>
+  </form>
+</div>
+
+<div class="col-lg-9">
+  <div class="form-group">
+    <label for="order_by">Sort</label>
+    <select class="form-control" id="order_by">
+      <option value='newest'>Newest</option>
+      <option value='oldest'>Oldest</option>
+    </select>
+  </div>
+
+  <div id="list-loader"><i class="fa fa-circle-o-notch fa-spin" ></i></div>
+
+  <ul id="subjects-list" class="list-group">
+  </ul>
+</div>

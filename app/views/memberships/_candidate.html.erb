@@ -1,0 +1,11 @@
+<li class="list-group-item clearfix">
+    <%= link_to candidate, class: "pull-left" do %>
+      <%= image_tag(candidate.avatar_url, class: "avatar") %>
+      <div class="status"><div class="<%= candidate.status %>"></div></div>
+    <% end %>
+
+    <%= link_to candidate do %>
+      <%= candidate.name %>
+    <% end %>
+    <%= link_to "Accept", organization_accept_invite_path(@organization, candidate), method: :patch, class: "btn btn-success" %>
+</li>

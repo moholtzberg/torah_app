@@ -1,14 +1,31 @@
 <!DOCTYPE html>
 <html>
-<head>
-  <title>TorahApp</title>
-  <%= stylesheet_link_tag    'application', media: 'all', 'data-turbolinks-track' => true %>
-  <%= javascript_include_tag 'application', 'data-turbolinks-track' => true %>
-  <%= csrf_meta_tags %>
-</head>
-<body>
+  <head>
+    <title>TorahApp</title>
+    <%= csrf_meta_tags %>
 
-<%= yield %>
+    <%= stylesheet_link_tag    'application', media: 'all', 'data-turbolinks-track': 'reload' %>
+    <%= javascript_include_tag 'application', 'data-turbolinks-track': 'reload' %>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="manifest" href="/manifest.json">
+  </head>
 
-</body>
+  <body>
+    <%= render "shared/navbar", current_user: current_user %>
+    <div id="page" class="container">
+      <div id="timezone" data-timezone="<%= current_user.time_zone if current_user %>"></div>
+      <div class="row">
+        <div class="col-md-offset-2 col-md-8 col-md-offset-2">
+          <%= flash_for flash %>
+
+          <%= yield %>
+          <script>
+            window.vapidPublicKey = new Uint8Array(<%= Base64.urlsafe_decode64(ENV['VAPID_PUBLIC_KEY']).bytes %>);
+            window.subscribedToPushNotifications = false;
+          </script>
+        </div>
+      </div>
+    </div>
+  </body>
 </html>

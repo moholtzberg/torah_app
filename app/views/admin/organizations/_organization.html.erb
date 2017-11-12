@@ -1,0 +1,11 @@
+<li class="organization list-group-item clearfix">
+  <%= link_to organization, class: "pull-left" do %>
+    <%= image_tag(organization.thumbnail_url, class: "thumbnail img-rounded", size: "64x64") %>
+  <% end %>
+
+  <strong> <%= link_to organization.name, admin_organization_path(organization) %></strong>
+  <p>Founder <%= link_to organization.founder.name, organization.founder %></p>
+  <% if organization.confirmed_at %>
+  <span><small>confirmed</small></span>
+  <% end %>
+</li>

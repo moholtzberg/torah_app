@@ -1,0 +1,18 @@
+<li class="list-group-item clearfix">
+    <%= link_to user, class: "pull-left" do %>
+      <%= image_tag(user.avatar_url, class: "avatar") %>
+      <div class="status"><div class="<%= user.status %>"></div></div>
+    <% end %>
+
+    <%= link_to user do %>
+      <%= user.name %>
+    <% end %>
+
+    <% unless local_assigns[:is_invite_link].nil? %>
+      <% if chatroom.users.include? user %>
+       <h6> is already in this chatroom </h6>
+      <% else %>
+        <%= button_to "add", chatroom_add_participant_path(chatroom.id, user.id), class: "add-user btn btn-success pull-right" %>
+      <% end %>
+    <% end %>
+</li>

@@ -1,0 +1,13 @@
+<li class="list-group-item">
+  <div class="notification-time">
+    <%= notification_time(notification.created_at) %>
+  </div>
+
+  <%= link_to notification.link do %>
+    <%= notification.message %>
+  <% end %>
+  |
+  <%= link_to notification, method: :delete do %>
+    Delete
+  <% end %>
+</li>

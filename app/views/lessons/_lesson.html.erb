@@ -1,0 +1,45 @@
+<li class="lesson media list-group-item">
+    <% if lesson.receiver.id == current_user.id %>
+      <div class="media-left">
+        <%= link_to lesson.sender do %>
+          <%= image_tag(lesson.sender.avatar_url, class: "media-object avatar") %>
+          <div class="status"><div class="<%= lesson.sender.status %>"></div></div>
+        <% end %>
+      </div>
+
+      <div class="media-body">
+        <h4 class="media-heading">
+          <%= link_to lesson.sender.name, lesson.sender %>
+          <small><%= link_to "@" + lesson.subject.name, lesson.subject %></small>
+        </h4>
+
+        <div class="lesson-message"><%= lesson.message %></div>
+
+        <div class="lesson-time">
+          Lesson will take place from <%= lesson_time(lesson.time.begin) %> to <%= lesson_time(lesson.time.end) %>
+          <%= "| Recurring" if lesson.recurring? %>
+        </div>
+
+        <% unless lesson.confirmed_at %>
+          <%= button_to "Accept", accept_lesson_invite_path(lesson.id), class: "btn btn-success" %>
+          <%= button_to "Decline", decline_lesson_invite_path(lesson.id), class: "btn btn-danger", method: :delete %>
+        <% end %>
+      </div>
+    <% else %>
+      <h4>
+        You invited <%= link_to lesson.receiver.name, lesson.receiver %>
+        to study <%= link_to lesson.subject.name, lesson.subject %> together
+      </h4>
+
+      <p><%= lesson.message %></p>
+
+      <div class="lesson-time">
+        Lesson will take place from <%= lesson_time(lesson.time.begin) %> to <%= lesson_time(lesson.time.end) %>
+         <%= "| Recurring" if lesson.recurring? %>
+      </div>
+
+      <% unless lesson.confirmed_at %>
+        <%= button_to "Cancel", decline_lesson_invite_path(lesson.id), class: "btn btn-danger", method: :delete %>
+      <% end %>
+    <% end %>
+</li>

@@ -1,0 +1,29 @@
+<h1>Users</h1>
+<form id="search-form" class="col-lg-3">
+  <div class="form-group">
+    <label>Name</label>
+    <input type="text" class="form-control" id="name">
+    <label>Country</label>
+    <input type="text" class="form-control" id="country">
+    <label>State/province</label>
+    <input type="text" class="form-control" id="state">
+    <label>City</label>
+    <input type="text" class="form-control" id="city">
+  </div>
+  <div class="checkbox">
+    <label><input id="online" type="checkbox">online</label>
+  </div>
+</form>
+
+<div class="col-lg-9">
+  <div class="form-group">
+    <label for="order_by">Sort</label>
+    <select class="form-control" id="order_by">
+      <option value='oldest'>Oldest</option>
+      <option value='newest'>Newest</option>
+    </select>
+  </div>
+
+  <ul id="users-list" class="list-group">
+  </ul>
+</div>

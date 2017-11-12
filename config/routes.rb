@@ -1,56 +1,68 @@
 Rails.application.routes.draw do
-  # The priority is based upon order of creation: first created -> highest priority.
-  # See how all your routes lay out with "rake routes".
+  post "/push" => "notifications#create"
 
-  # You can have the root of your site routed with "root"
-  # root 'welcome#index'
+  resources :notifications, only: [:create, :index, :destroy] do
+    collection do
+      post :mark_as_read
+      post :subscribe
+    end
+  end
 
-  # Example of regular route:
-  #   get 'products/:id' => 'catalog#view'
+  root "subjects#home"
 
-  # Example of named route that can be invoked with purchase_url(id: product.id)
-  #   get 'products/:id/purchase' => 'catalog#purchase', as: :purchase
+  get "organizations/fetch", to: "organizations#fetch"
+  get "organizations/home", to: "organizations#home"
+  resources :organizations do
+    resources :posts
+    post "send_invite", to: "memberships#send_invite", as: "send_invite"
+    patch "accept_invite/:user_id", to: "memberships#accept_invite", as: "accept_invite"
+    delete "cancel_invite", to: "memberships#cancel_invite", as: "cancel_invite"
+    get "members", to: "memberships#members", as: "members"
+    patch "change_role/:user_id/:role", to: "memberships#change_role", as: "change_role"
+  end
 
-  # Example resource route (maps HTTP verbs to controller actions automatically):
-  #   resources :products
+  devise_for :users
+  get "subjects/fetch", to: "subjects#fetch"
+  resources :subjects
 
-  # Example resource route with options:
-  #   resources :products do
-  #     member do
-  #       get 'short'
-  #       post 'toggle'
-  #     end
-  #
-  #     collection do
-  #       get 'sold'
-  #     end
-  #   end
+  scope "users" do
+    get "fetch_users", to: "users#fetch_users"
+    post "add_friend/:id", to: "users#add_friend", as: "add_friend"
+    delete "remove_friend/:id", to: "users#remove_friend", as: "remove_friend"
+  end
 
-  # Example resource route with sub-resources:
-  #   resources :products do
-  #     resources :comments, :sales
-  #     resource :seller
-  #   end
+  resources :users, only: [:show, :index] do
+    resources :lessons, only: [:create, :new, :index, :destroy]
+  end
 
-  # Example resource route with more complex sub-resources:
-  #   resources :products do
-  #     resources :comments
-  #     resources :sales do
-  #       get 'recent', on: :collection
-  #     end
-  #   end
+  get "fetch_lessons", to: "lessons#fetch_lessons", as: "fetch_lessons"
+  get "lessons/fetch_subjects", to: "lessons#fetch_subjects"
+  post "lessons/:id/accept_invite", to: "lessons#accept_invite", as: "accept_lesson_invite"
+  delete "lessons/:id/decline_invite", to: "lessons#decline_invite", as: "decline_lesson_invite"
 
-  # Example resource route with concerns:
-  #   concern :toggleable do
-  #     post 'toggle'
-  #   end
-  #   resources :posts, concerns: :toggleable
-  #   resources :photos, concerns: :toggleable
+  post "add_subject/:id", to: "users#add_subject", as: "add_subject"
+  delete "remove_subject/:id", to: "users#remove_subject", as: "remove_subject"
 
-  # Example resource route within a namespace:
-  #   namespace :admin do
-  #     # Directs /admin/products/* to Admin::ProductsController
-  #     # (app/controllers/admin/products_controller.rb)
-  #     resources :products
-  #   end
+  resources :chatrooms, only: [:index, :show] do
+    post "add_participant/:user_id", to: "chatrooms#add_participant", as: "add_participant"
+    get "fetch_users", to: "chatrooms#fetch_users", as: "fetch_users"
+  end
+  post "chatrooms/:user_id", to: "chatrooms#create", as: "new_chatroom"
+
+  get "chatrooms/video_token/:chatroom_id", to: "chatrooms#generate_video_token"
+
+  mount ActionCable.server => '/cable'
+
+  scope :admin do
+    get "edit_user/:id", to: "admin#edit_user", as: "admin_edit_user"
+    patch "update_user/:id", to: "admin#update_user", as: "admin_update_user"
+  end
+
+  namespace :admin do
+    resources :organizations, only: [:show, :index] do
+      patch "confirm", to: "organizations#confirm", as: "confirm"
+    end
+  end
+
+  get "/:organization_name", to: "organizations#show_by_name", as: "organization_page"
 end
