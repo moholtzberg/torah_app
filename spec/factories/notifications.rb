@@ -4,5 +4,9 @@ FactoryGirl.define do
     association :user, factory: :user
     link "MyString"
     read_at Time.current
+
+    factory :unread_notification do
+      read_at nil
+    end
   end
 end

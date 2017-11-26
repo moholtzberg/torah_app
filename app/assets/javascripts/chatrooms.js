@@ -101,13 +101,15 @@ jQuery(document).on('turbolinks:load', () => {
 
     showVideoChat();
     startCallTimer();
+    $('#call-button').hide();
 
     App.global_chat.start_video_call(chatroom_id);
   }
 
   function disconnectFromVideoChat(room) {
-    hideVideoChat();
     room.disconnect();
+    hideVideoChat();
+    $('#call-button').show();
   }
 
   function showVideoChat() {
@@ -162,7 +164,6 @@ jQuery(document).on('turbolinks:load', () => {
   $('.invite-list-button').on('click', toggleInviteList);
 
   $('#invite-users-list').on('click', '.add-user', () => {
-    console.log('test');
     $('#invite-users-list').toggle();
     $('#chatroom').toggle();
   });

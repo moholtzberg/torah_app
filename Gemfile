@@ -15,6 +15,7 @@ gem 'jquery-rails'
 gem 'turbolinks', '~> 5'
 gem 'redis', '~> 3.0'
 gem 'devise'
+gem 'devise_token_auth'
 gem 'omniauth'
 gem 'twilio-ruby'
 gem 'dotenv-rails'
@@ -29,6 +30,7 @@ gem 'factory_girl_rails', '~> 4.5', require: false
 gem 'faker', '~> 1.6.1'
 gem 'kaminari'
 gem "webpush"
+gem 'active_model_serializers'
 
 group :development, :test do
   gem 'byebug'

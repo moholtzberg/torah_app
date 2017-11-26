@@ -32,7 +32,6 @@ class Lesson < ApplicationRecord
     )
   end
 
-
   def sender_should_be_available_on_lesson_time
     t = to_availability_week(time)
     sender.availability.each do |r|

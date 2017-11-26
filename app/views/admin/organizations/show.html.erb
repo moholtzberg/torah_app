@@ -21,6 +21,7 @@
     <%= link_to 'Confirm organization', admin_organization_confirm_path(@organization.id), method: :patch, data: { confirm: 'Confirm' }, class: "btn btn-success" %>
   <% else %>
     <h3>Confirmed</h3>
+    <%= link_to 'Go to organization page', @organization %>
   <% end %>
 
   <hr />

@@ -8,7 +8,9 @@ class OrganizationsController < ApplicationController
   end
 
   def fetch
-    render Organization.confirmed.filter(filters_params).search(search_params),
+    organizations = Organization.confirmed.filter(filters_params).search(search_params)
+      .page(params[:page]).per(10)
+    render organizations,
       current_user: current_user
   end
 
@@ -43,7 +45,7 @@ class OrganizationsController < ApplicationController
   end
 
   def set_organization_by_name
-    p name = params[:organization_name].gsub(/-/, " ")
+    name = params[:organization_name].gsub(/-/, " ")
     @organization = Organization.where('lower(name) = ?', name.downcase).first
   end
 

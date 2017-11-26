@@ -2,14 +2,17 @@ class NotificationsController < ApplicationController
   before_action :authenticate_user!
 
   def index
+  end
+
+  def fetch
     if params[:limit]
-      @notifications = current_user.notifications.order("created_at DESC").page(0).limit(params[:limit])
+      notifications = current_user.notifications.order("created_at DESC").page(0).limit(params[:limit])
     else
-      @notifications = current_user.notifications.order("created_at DESC").page(params[:page])
+      notifications = current_user.notifications.order("created_at DESC").page(params[:page])
     end
     respond_to do |format|
-      format.html
-      format.json { p render json: @notifications }
+      format.html { render notifications }
+      format.json { render json: notifications }
     end
   end
 

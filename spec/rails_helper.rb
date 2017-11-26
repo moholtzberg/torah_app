@@ -7,7 +7,10 @@ abort("The Rails environment is running in production mode!") if Rails.env.produ
 require 'rspec/rails'
 require 'shoulda/matchers'
 require 'support/database_cleaner'
+require 'support/api_helper'
+require 'support/custom_matchers'
 require 'support/helper'
+
 
 
 # Add additional requires below this line. Rails is not loaded until this point!
@@ -33,8 +36,9 @@ ActiveRecord::Migration.maintain_test_schema!
 ActiveJob::Base.queue_adapter = :test
 
 RSpec.configure do |config|
-  config.include Helper
   config.include FactoryGirl::Syntax::Methods
+  config.include ApiHelper
+  config.include Helper
   # Remove this line if you're not using ActiveRecord or ActiveRecord fixtures
   config.fixture_path = "#{::Rails.root}/spec/fixtures"
 

@@ -1,5 +1,28 @@
-<h1>Organizations</h1>
+<br/>
 
-<ul id="organizations-list">
-  <%= render @organizations %>
-</ul>
+<div class="col-lg-3">
+  <form id="search-form">
+    <label>Name</label>
+    <input type="text" class="form-control" id="name"/>
+    <div class="checkbox">
+      <label><input id="confirmed" type="checkbox">Confirmed</label>
+    </div>
+    <div class="checkbox">
+      <label><input id="unconfirmed" type="checkbox">Pending</label>
+    </div>
+  </form>
+</div>
+
+<div class="col-lg-9">
+  <div class="form-group">
+    <label for="order_by">Sort</label>
+    <select class="form-control" id="order_by">
+      <option value='newest'>Newest</option>
+      <option value='oldest'>Oldest</option>
+    </select>
+  </div>
+
+  <div id="list-loader"><i class="fa fa-circle-o-notch fa-spin" ></i></div>
+
+  <ul id="admin-organizations-list" class="list-group"></ul>
+</div>

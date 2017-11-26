@@ -15,4 +15,21 @@ class Admin::OrganizationsController < AdminController
   def index
     @organizations = Organization.includes(:founder)
   end
+
+  def fetch
+    organizations = Organization.filter(filters_params).search(search_params)
+      .page(params[:page]).per(10)
+    render organizations,
+      current_user: current_user
+  end
+
+  private
+
+  def filters_params
+    params[:filters]? params.require(:filters).permit(:order_by, :unconfirmed, :confirmed) : {}
+  end
+
+  def search_params
+    params[:search]? params.require(:search).permit(:name) : {}
+  end
 end

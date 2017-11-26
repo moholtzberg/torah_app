@@ -86,4 +86,15 @@ Rails.application.configure do
 
   config.web_socket_server_url = "wss://torah-app.herokuapp.com/cable"
   config.action_cable.allowed_request_origins = ['https://torah-app.herokuapp.com', 'http://torah-app.herokuapp.com']
+
+  config.action_mailer.default_url_options = { host: ENV["MAILER_HOST"] }
+  config.action_mailer.delivery_method = :smtp
+  config.action_mailer.smtp_settings = {
+    address:              'smtp.gmail.com',
+    port:                 587,
+    domain:               'gmail',
+    user_name:            ENV["MAILER_EMAIL"],
+    password:             ENV["MAILER_PASSWORD"],
+    authentication:       :plain
+  }
 end

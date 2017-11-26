@@ -16,5 +16,9 @@ FactoryGirl.define do
       ends_at_date Date.tomorrow + 7.days
       recurring true
     end
+
+    factory :unconfirmed_lesson do
+      confirmed_at nil
+    end
   end
 end

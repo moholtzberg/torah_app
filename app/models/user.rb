@@ -22,18 +22,24 @@ class User < ApplicationRecord
   has_many :foundations, class_name: "Organization", foreign_key: :founder_id
   has_many :memberships, dependent: :destroy
   has_many :organizations, through: :memberships
+  has_many :confirmed_memberships, -> { confirmed }, class_name: "Membership"
+  has_many :confirmed_organizations, source: :organization, through: :confirmed_memberships
   has_many :posts
   has_many :notifications, dependent: :destroy
   has_many :devices, dependent: :destroy
 
   validates :name, presence: true, length: { in: 5..40 }
-  validate :availability_should_be_inside_availability_range
+  validate :availability_should_be_inside_availability_range, on: :update, if: :availability_is_present?
 
   mount_uploader :avatar, AvatarUploader
   devise :database_authenticatable, :registerable, :confirmable,
          :recoverable, :rememberable, :trackable, :validatable,
-         :timeoutable, :lockable, :omniauthable
+         :timeoutable, :lockable #, :omniauthable
+  include DeviseTokenAuth::Concerns::User
 
+  # Devise is not sending confrirmation email on create
+  after_commit :send_confirmation_instructions, on: :create
+  before_create :set_default_availability
 
   def disappear
     update_attribute(:status, 0)
@@ -66,9 +72,31 @@ class User < ApplicationRecord
 
   private
 
+  def set_default_availability
+    a = []
+    7.times do |i|
+      range = Time.zone.parse('1996-01-01 00:00') + i.days..Time.zone.parse('1996-01-01 24:00') + i.days
+      a << range
+    end
+    self.availability = a
+  end
+
+  def availability_is_present?
+    @availability
+  end
+
+  def send_confirmation_instructions
+      unless @raw_confirmation_token
+        generate_confirmation_token!
+      end
+
+      opts = pending_reconfirmation? ? { to: unconfirmed_email } : { }
+      send_devise_notification(:confirmation_instructions, @raw_confirmation_token, opts)
+    end
+
   def availability_should_be_inside_availability_range
-    availability_range = Time.parse("1996-01-01 00:00")..
-                         Time.parse("1996-01-08 24:00")
+    availability_range = Time.zone.parse("1996-01-01 00:00")..
+                         Time.zone.parse("1996-01-08 24:00")
     availability.each do |r|
       errors.add(:availability, "Invalid availability ranges are provided") unless
         r.begin.between?(availability_range.begin, availability_range.end) &&

@@ -4,6 +4,7 @@ class Organization < ApplicationRecord
 
   scope :order_by, -> (param) { sort_by(param) }
   scope :confirmed, -> { where.not(confirmed_at: nil) }
+  scope :unconfirmed, -> { where(confirmed_at: nil) }
 
   belongs_to :founder, class_name: "User"
   has_many :memberships, dependent: :destroy

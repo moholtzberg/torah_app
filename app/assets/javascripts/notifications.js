@@ -1,10 +1,23 @@
 jQuery(document).on('turbolinks:load', () => {
+  if ($('#notifications-list')) {
+    const getData = (page) => ({
+      page: page
+    });
+
+    new InfinityList({
+      selector: "#notifications-list",
+      url: "/notifications/fetch",
+      getData: getData,
+      per_page: 25
+    });
+  }
+
   $('#get-notifications').on('click', () => {
     $.ajax({
-            url: "/notifications?limit=5",
-            dataType: "JSON",
-            method: "GET"
-        })
+        url: "/notifications/fetch?limit=5",
+        dataType: "JSON",
+        method: "GET"
+      })
       .then((notifications) => {
         const items = notifications.map((n) => `<li class="dropdown-item"><a href="${n.link}">${n.message}</a></li>`);
         $('#notifications-small-list').html(items.join(' '));

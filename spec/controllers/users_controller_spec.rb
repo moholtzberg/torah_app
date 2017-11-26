@@ -16,6 +16,26 @@ RSpec.describe UsersController, type: :controller do
 
   it { is_expected.to use_before_filter(:authenticate_user!) }
 
+  describe "GET #favorites" do
+    context 'when authenticated' do
+      before do
+        10.times { create(:interest, user: user) }
+        sign_in current_user
+        get :favorites, params: { user_id: user.id, page: 1 }
+      end
+
+      it { is_expected.to respond_with :success }
+    end
+
+    context 'when unauthenticated' do
+      before do
+        get :favorites, params: { user_id: user, page: 0 }
+      end
+
+      it { is_expected.to redirect_to new_user_session_url }
+    end
+  end
+
   describe "GET #show" do
     context "when authorized" do
       before do

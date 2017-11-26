@@ -1,10 +1,60 @@
 Rails.application.routes.draw do
-  post "/push" => "notifications#create"
+  devise_for :users
+
+  namespace :api do
+    namespace :v1 do
+      mount_devise_token_auth_for 'User', at: 'users'
+      devise_for :users, only: []
+
+      resources :users, only: [:index, :show] do
+        post :add_to_friends
+        post :remove_from_friends
+        get :favorites
+      end
+
+      resources :subjects, only: [:index, :show] do
+        post :like, to: "subjects#like"
+        delete :unlike, to: "subjects#unlike"
+      end
+
+      resources :organizations do
+        resources :posts, only: [:index, :show, :create, :update]
+      end
+
+      resources :organization, only: [:index, :show, :create] do
+        post "send_invite", to: "memberships#send_invite"
+        patch "accept_invite/:user_id", to: "memberships#accept_invite"
+        delete "cancel_invite", to: "memberships#cancel_invite"
+        get "members", to: "memberships#members"
+        get "candidates", to: "memberships#candidates"
+        patch "change_role/:user_id/:role", to: "memberships#change_role"
+      end
+
+      resources :notifications, only: [:create, :index, :destroy] do
+        collection do
+          patch :mark_as_read
+        end
+      end
+
+      resources :lessons, except: [:new, :edit] do
+        collection do
+          get "subjects/:name", to: "lessons#subjects"
+        end
+      end
+
+      resources :chatrooms, only: [:index, :show, :create] do
+        post "add_participant/:user_id", to: "chatrooms#add_participant"
+        get :video_token, to: "chatrooms#video_token"
+        get :messages, to: "chatrooms#messages"
+      end
+    end
+  end
 
   resources :notifications, only: [:create, :index, :destroy] do
     collection do
       post :mark_as_read
       post :subscribe
+      get :fetch
     end
   end
 
@@ -21,7 +71,7 @@ Rails.application.routes.draw do
     patch "change_role/:user_id/:role", to: "memberships#change_role", as: "change_role"
   end
 
-  devise_for :users
+  #devise_for :users
   get "subjects/fetch", to: "subjects#fetch"
   resources :subjects
 
@@ -31,7 +81,9 @@ Rails.application.routes.draw do
     delete "remove_friend/:id", to: "users#remove_friend", as: "remove_friend"
   end
 
-  resources :users, only: [:show, :index] do
+  resources :users, only: [:show, :index, :edit, :update] do
+    patch :change_password
+    get :favorites
     resources :lessons, only: [:create, :new, :index, :destroy]
   end
 
@@ -60,7 +112,10 @@ Rails.application.routes.draw do
 
   namespace :admin do
     resources :organizations, only: [:show, :index] do
-      patch "confirm", to: "organizations#confirm", as: "confirm"
+      collection do
+        get :fetch
+      end
+      patch :confirm
     end
   end
 

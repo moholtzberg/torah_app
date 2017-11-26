@@ -60,8 +60,8 @@
 <div class="row">
   <div class="col-lg-12">
     <h3>Organizations</h3>
-    <% @memberships.each do |membership| %>
-      <div><%= link_to membership.organization.name, organization_page_path(membership.organization.params_url) %></div>
+    <% @user.confirmed_organizations.where.not(confirmed_at: nil).each do |organization| %>
+      <div><%= link_to organization.name, organization_page_path(organization.params_url) %></div>
     <% end %>
   </div>
 </div>
@@ -80,8 +80,6 @@
 <div class="col-lg-12">
   <h2>Interested subjects</h2>
 
-  <ul id= "subjects-list" class="list-group">
-    <%= render @user.subjects, without_nested: true %>
-    <%= "Not interested in something yet" unless @user.subjects.any?%>
+  <ul id= "favorites-list" class="list-group" data-id="<%= @user.id %>">
   </ul>
 </div>

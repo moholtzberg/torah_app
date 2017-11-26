@@ -38,7 +38,7 @@ class Subject < ApplicationRecord
   end
 
   def check_if_parent_id_wont_loop
-    errors.add(:parent_id, "You cannot inherit subject from himself") if parent_id == id
+    errors.add(:parent_id, "You cannot inherit subject from himself") if id && parent_id == id
     errors.add(:parent_id, "You cannot inherit subject from his child") if parent_id && is_inherit_from_child?(parent_id)
   end
 end

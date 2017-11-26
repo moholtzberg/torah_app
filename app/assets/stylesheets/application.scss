@@ -4,6 +4,10 @@
 @import "jquery.timepicker.css";
 @import "bootstrap-datepicker.css";
 
+.confirmed {
+  color: green;
+}
+
 #notifications-list {
   .notification-time {
     display: inline-block;
@@ -56,6 +60,14 @@
 }
 
 #organizations-list {
+  .organization {
+    .thumbnail {
+      margin-right: 10px;
+    }
+  }
+}
+
+#admin-organizations-list {
   .organization {
     .thumbnail {
       margin-right: 10px;

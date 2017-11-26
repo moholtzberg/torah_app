@@ -1,6 +1,6 @@
 FactoryGirl.define do
   factory :organization do
-    name { Faker::Team.name }
+    sequence(:name)    { |n| "#{Faker::Team.name}#{n}" }
     headline { Faker::Lorem.sentence }
     description { Faker::Lorem.paragraph(10) }
     confirmed_at nil

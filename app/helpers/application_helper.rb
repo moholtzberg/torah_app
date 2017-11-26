@@ -23,7 +23,6 @@ module ApplicationHelper
   end
 
   def flash_for flash
-    p "flash", flash
     flash.map do |key, value|
       case key
         when "danger"

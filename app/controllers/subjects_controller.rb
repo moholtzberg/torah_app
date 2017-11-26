@@ -9,7 +9,8 @@ class SubjectsController < ApplicationController
   end
 
   def fetch
-    @subjects = Subject.includes(:children, :interests).filter(filters_params).search(search_params)
+    @subjects = Subject.includes(:children, :interests).filter(filters_params)
+      .search(search_params).page(params[:page]).per(10)
     render @subjects
   end
 
