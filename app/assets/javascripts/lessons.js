@@ -1,149 +1,185 @@
 jQuery(document).on('turbolinks:load', () => {
   if($('#lessons-list').length > 0) {
-    function fetchLessons() {
-      $.get(`${window.location.origin}/fetch_lessons`)
-        .then((lessons) => {
-          $('#lessons-list').append(lessons);
-        })
-    }
+    const getData = (page) => ({
+      page: page,
+      search: {
+      },
+      filters: {
+      }
+    });
 
-    fetchLessons();
+    new InfinityList({
+      selector: "#lessons-list",
+      url: `/users/id/lessons/fetch`,
+      getData: getData,
+      per_page: 10
+    });
   }
 
   if($('#new_lesson').length > 0) {
-    const timeZone = moment.tz.names().find((zone) => zone.includes($('#timezone').data('timezone')));
+    extendMoment(moment);
+    const subjectPicker = createSubjectPicker('#lesson_subject_id');
+    const userAvailability = getUserAvailability();
 
-    function getDisabledTimeRangesForStart(date) {
-      return unavailabilityTimeOnStart(date).concat(lessonsTimeOnStart(date))
-    }
-
-    function getDisabledTimeRangesForEnd(date) {
-      return unavailabilityTimeOnEnd(date).concat(lessonsTimeOnEnd(date))
-    }
-
-    function unavailabilityTimeOnEnd(date) {
-      const availability = userAvailability().concat(currentUserAvailability()).filter((e) => {
-        return e[1].day == date.day
-      })
-
-      let result = []
-
-      availability.forEach((e) => {
-        if (e[0] == e[1]) {
-          result.push(["00:00", e[0].format('kk:mm')])
+    function getDisabledTimeRanges(date) {
+      const ranges = getUserUnavailability(date).map((el)=> {
+        const start = el.start.utc();
+        const end = el.end.utc();
+        if (end.isAfter(start) && end.format("HH:mm") == "00:00") {
+          return [start.format("HH:mm"), "24:00"]
+        } else {
+          return [start.format("HH:mm"), end.format("HH:mm")]
         }
-        result.push([e[1].format('kk:mm'), "24:00"])
       });
+      return ranges;
+    }
 
+    function addRangesArray(array) {
+      let result = [array[0]];
+      array.forEach((el, i) => {
+        if (i < array.length - 1) {
+          const tempo = result.pop();
+          const a = array[i+1];
+          if (tempo.overlaps(a)) {
+            result = result.concat(tempo.add(array[i+1]));
+          } else {
+            result = result.concat([tempo, a])
+          }
+        }
+      });
       return result;
     }
 
-    function unavailabilityTimeOnStart(date) {
-      const availability = userAvailability().concat(currentUserAvailability()).filter((e) => {
-        return e[0].day == date.day
+    function getUserAvailability() {
+      const availability = $('#user-availability').data('availability').map((e) => {
+        const r = e.split('..');
+        return moment.range(new Date(r[0]), new Date(r[1]));
       })
+      return addRangesArray(availability);
+    }
 
-      let result = []
+    function getUserUnavailability(date) {
+      const start  = moment(new Date(date + 'T00:00:00'));
+      const end = moment(new Date(date + 'T24:00:00'));
+      const range = [moment.range(toAvailabilityWeek(start), toAvailabilityWeek(end))]
+      return subtractRangesArray(range, userAvailability);
+    }
 
-      availability.forEach((e) => {
-        if (e[0] == e[1]) {
-          result.push([e[1].format('kk:mm'), "24:00"])
+    function toAvailabilityWeek(date) {
+      return moment(`1996-01-01T${date.utc().format("HH:mm")}`).add(date.day() - 1,'days');
+    }
+
+    function rangeArrayContains(array, range) {
+      array.forEach((el) => {
+        if(el.isEqual(range)) {
+          return true;
         }
-        result.push(["00:00", e[0].format('kk:mm')])
-      })
-
-      return result;
-    }
-
-
-    function userAvailability() {
-      return $('#user-availability').data('availability').map((e) => {
-        const a = e.split('..');
-        return [moment(new Date(a[0])).tz(timeZone), moment(new Date(a[1])).tz(timeZone)];
-      })
-    }
-
-    function currentUserAvailability() {
-      return $('#current-user-availability').data('availability').map((e) => {
-        const a = e.split('..');
-        return [moment(new Date(a[0])).tz(timeZone), moment(new Date(a[1])).tz(timeZone)];
-      })
-    }
-
-    function lessonsTime(date) {
-      const lessons = ($('#lessons-time').data('lessons')).map((l) => {
-        let time = l['time'].split('..');
-        return [moment(new Date(time[0])).tz(timeZone), moment(new Date(time[1])).tz(timeZone), l["recurring"]]
       });
-      return lessons;
     }
 
-    function lessonsTimeOnStart(date) {
-      const lessons = lessonsTime(date).filter((l) => {
-        return l[0] == date ||
-               (l[0].day == date.day && l[2])
-      })
+    function subtractRangesArray(range, array) {
+      let result = [];
+      range.forEach((min) => {
+          const diff = min.subtract(array[0]);
+          result = result.concat(diff);
+      });
 
-      return lessons? lessons.map((l) => {
-        if (l[0] == l[1]) {
-          return [l[0].format('kk:mm'),
-                 l[1].format('kk:mm')]
-        }
-        return [
-        l[0].format('kk:mm'),
-        "24:00"
-      ]}) : []
+      if(array.length == 1) {
+        return result;
+      } else {
+        return subtractRangesArray(result, array.slice(1, array.length));
+      }
     }
+    /*
+    function subtractRangesArray(range, array) {
+      let result = [];
+      range.forEach((min) => {
+        array.forEach((sub)=> {
+          const diff = min.subtract(sub);
+          diff.forEach((el) => {
+            if (!rangeArrayContains(result, el)) {
+              result.push(el);
+            }
+          });
+        });
+      });
 
-    function lessonsTimeOnEnd(date) {
-      const lessons = lessonsTime(date).filter((l) => {
-        return l[1] == date ||
-               (l[1].day == date.day && l[2])
-      })
-
-      return lessons? lessons.map((l) => {
-        if (l[0] == l[1]) {
-          return [l[0].format('kk:mm'),
-                 l[1].format('kk:mm')]
-        }
-        return [
-        "00:00",
-        l[1].format('kk:mm')
-      ]}) : []
+      if(result.length == range.length) {
+        console.log("end");
+        return result;
+      } else {
+        console.log(result.length);
+        return subtractRangesArray(result, array);
+      }
     }
+    */
 
     function changeTimeRanges() {
-      const endDate = moment(new Date($('.lesson .date.end').val())).tz(timeZone)
-      const startDate = moment(new Date($('.lesson .date.start').val())).tz(timeZone)
-      $('.lesson .time.start').timepicker('option', 'disableTimeRanges', getDisabledTimeRangesForStart(startDate));
-      $('.lesson .time.end').timepicker('option', 'disabTZTimeRanges', getDisabledTimeRangesForEnd(endDate));
+      const endDate   = $('.lesson .date.end').val();
+      const startDate = $('.lesson .date.start').val();
+      $('.lesson .time.start').timepicker('option', 'disableTimeRanges', getDisabledTimeRanges(startDate));
+      $('.lesson .time.end').timepicker('option', 'disableTimeRanges', getDisabledTimeRanges(endDate));
     }
 
-    $('.lesson .time.start').timepicker({
+    function checkCurrentUserAvailability() {
+      $('#user-available').hide();
+      $('#user-unavailable').hide();
+      $('#check-user-availability-loader').show();
+      $('input[type="submit"]').prop('disabled', true);
+
+      $.get('/lessons/check_if_current_user_is_available', {
+        starts_at_date: $('#lesson_starts_at_date').val(),
+        ends_at_date:   $('#lesson_ends_at_date').val(),
+        starts_at_time: $('#lesson_starts_at_time').val(),
+        ends_at_time:   $('#lesson_ends_at_time').val()
+      })
+        .then((response) => {
+          $('#check-user-availability-loader').hide();
+          $('#user-available').show();
+          $('input[type="submit"]').prop('disabled', false);
+        })
+        .fail((errors) => {
+          $('input[type="submit"]').prop('disabled', false);
+          $('#check-user-availability-loader').hide();
+          $('#user-unavailable').show();
+        })
+    }
+
+    const timepickerConfig = {
       showDuration: true,
-      timeFormat: 'H:i',
-      disableTimeRanges: getDisabledTimeRangesForStart(moment(new Date).tz(timeZone))
+      timeFormat: 'H:i'
+    }
+
+    $('.lesson .time.start').timepicker(timepickerConfig);
+    $('.lesson .time.end').timepicker(timepickerConfig);
+
+    $('.lesson .time').each((i, input) => {
+      if (!input.value) {
+        $(input).timepicker('setTime', new Date);
+      }
     });
 
-    $('.lesson .time.end').timepicker({
-      showDuration: true,
-      timeFormat: 'H:i',
-      disableTimeRanges: getDisabledTimeRangesForEnd(moment(new Date).tz(timeZone))
-    });
-
-    $('.lesson .time').timepicker('setTime', new Date);
 
     $('input.date').datepicker({
-        format: 'yyyy-m-d',
+        format: 'yyyy-mm-dd',
         autoclose: true,
         startDate: '-0d',
-        todayHighlight: true
+        todayHighlight: true,
     });
 
-    $('.lesson .date').datepicker('setDate', new Date);
+    $('.lesson .date').each((i, input) => {
+      if (!input.value) {
+        $(input).datepicker('setDate', new Date);;
+      }
+    });
 
     $('.day').datepair();
     $('.lesson').datepair();
+    changeTimeRanges();
     $('.lesson .date').on('change', changeTimeRanges);
+
+
+    $('.lesson .date').on('change', checkCurrentUserAvailability);
+    $('.lesson .time').on('change', checkCurrentUserAvailability);
   }
 });

@@ -1,6 +1,7 @@
 class Subject < ApplicationRecord
   include Filterable
   include Searchable
+  include PublicActivity::Common
 
   scope :featured, -> { where(featured: true) }
   scope :order_by, -> (param) { sort_by(param) }

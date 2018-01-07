@@ -21,6 +21,8 @@
 //= require bootstrap
 //= require moment
 //= require moment-timezone-with-data
+//= require choices_js/assets/scripts/dist/choices.min.js
+//= require moment_range/lib/moment-range.js
 //= require_tree .
 
 jQuery(document).on('turbolinks:load', function() {

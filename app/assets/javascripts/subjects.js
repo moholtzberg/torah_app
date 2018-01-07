@@ -68,32 +68,4 @@ jQuery(document).on('turbolinks:load', () => {
         $(e.target).toggleClass('glyphicon-star glyphicon-star-empty');
       });
   }
-
-  if ($('#subject_picker').length > 0) {
-    let searchTimeout;
-    fetchSubjectsOptions();
-
-    function fetchSubjectsOptions(search) {
-      $.get(`${window.location.origin}/lessons/fetch_subjects`, {
-          search: search
-        })
-        .then((lessons) => {
-          $('#subject_options').html(lessons);
-        });
-    }
-
-    $('#subject_picker').on('keyup', (e) => {
-      clearTimeout(searchTimeout);
-      searchTimeout = setTimeout(() => {
-        fetchSubjectsOptions(e.target.value);
-      }, 1000);
-
-    })
-
-    $('#subject_picker').on('change', (e) => {
-      const id = $(`#subject_options option[value='${e.target.value}']`).data('id');
-      $('#lesson_subject_id').val(id);
-      $('#subject_parent_id').val(id);
-    });
-  }
 });

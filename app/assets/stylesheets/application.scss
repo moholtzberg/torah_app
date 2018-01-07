@@ -1,8 +1,53 @@
 @import "bootstrap-sprockets";
 @import "bootstrap";
-@import "jquery.timepicker.css";
-@import "jquery.timepicker.css";
-@import "bootstrap-datepicker.css";
+@import "jquery.timepicker";
+@import "jquery.timepicker";
+@import "bootstrap-datepicker";
+@import "choices_js/assets/styles/css/choices.min";
+
+#video-call-ring {
+  position: absolute;
+  height: 300px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: white;
+  padding: 32px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  text-align: center;
+  z-index:1002;
+}
+
+.chatroom-avatar {
+  height: 150px;
+}
+
+.overlay {
+  position:fixed;
+  top:0;
+  bottom:0;
+  left:0;
+  right:0;
+  background-color: black;
+  opacity:0.8;
+  z-index:1001;
+}
+
+#check-user-availability-loader, #user-available, #user-unavailable {
+  display: none;
+}
+
+.event-message {
+    text-align: center;
+    margin-top: 5px;
+    margin-bottom: 5px;
+
+    .time {
+        color:#bfbfbf;
+        font-size: 10px;
+    }
+}
 
 .confirmed {
   color: green;
@@ -59,7 +104,7 @@
   }
 }
 
-#organizations-list {
+#organizations-list, #admin-organizations-list, #current-user-organizations-list {
   .organization {
     .thumbnail {
       margin-right: 10px;
@@ -67,15 +112,7 @@
   }
 }
 
-#admin-organizations-list {
-  .organization {
-    .thumbnail {
-      margin-right: 10px;
-    }
-  }
-}
-
-#subjects-list {
+#subjects-list, #favorites-list {
   .subject {
     .thumbnail {
       margin-right: 10px;

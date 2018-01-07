@@ -5,19 +5,27 @@ class LessonsController < ApplicationController
   def index
   end
 
-  def fetch_lessons
-    render current_user.lessons
+  def check_if_current_user_is_available
+    if current_user.available?(lesson_time)
+      render json: { message: "You are available on that time" }
+    else
+      render json: { message: "You are not available on that time" }, status: :bad_request
+    end
   end
 
-  def fetch_subjects
-    subjects =  Subject.where("name LIKE ?", "%#{params[:search]}%")
-    render partial: "subjects/subject_option", collection: subjects, as: :subject
+  def fetch
+    render Lesson.where(sender_id: current_user.id)
+  end
+
+  def subjects
+    subjects = Subject.where("lower(name) LIKE ?", "%#{params[:search].downcase}%").map { |subject| {label: subject.name, value: subject.id } }
+    render json: subjects
   end
 
   def accept_invite
-    lesson = Lesson.find(params[:id])
+    lesson = Lesson.find(params[:id]).includes(:receiver)
     if lesson.receiver == current_user
-      lesson.update_attribute(:confirmed_at, DateTime.now)
+      lesson.update_attribute(:confirmed_at, Time.current)
       redirect_to user_lessons_path(current_user)
     else
       redirect_to user_lessons_path(current_user), notice: "You cannot accept his invite"
@@ -37,10 +45,12 @@ class LessonsController < ApplicationController
 
   def create
     @user = User.find(params[:user_id])
+    @subject = Subject.find(params[:lesson][:subject_id]) if params[:lesson][:subject_id]
     @lesson = Lesson.new(lesson_params)
     if @lesson.save
       redirect_to @user, notice: "You have invited this user to study with you"
     else
+      p params[:lesson][:starts_at_date]
       render :new
     end
   end
@@ -52,8 +62,14 @@ class LessonsController < ApplicationController
 
   private
 
+  def lesson_time
+    starts = Time.zone.parse("#{params[:starts_at_date]} #{params[:starts_at_time]}")
+    ends = Time.zone.parse("#{params[:ends_at_date]} #{params[:ends_at_time]}")
+    starts..ends
+  end
+
   def lesson_params
-    params.require(:lesson).permit(:message, :starts_at_time, :ends_at_time,
+    params.require(:lesson).permit(:message, :starts_at_time, :ends_at_time, :private,
       :starts_at_date, :ends_at_date, :subject_id, :receiver_id, :sender_id, :recurring)
   end
 

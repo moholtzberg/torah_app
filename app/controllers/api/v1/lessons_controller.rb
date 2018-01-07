@@ -43,7 +43,7 @@ class Api::V1::LessonsController < Api::V1::BaseController
   private
 
   def lesson_params
-    params.require(:lesson).permit(:message, :starts_at_time, :ends_at_time,
+    params.require(:lesson).permit(:message, :starts_at_time, :ends_at_time, :private,
       :starts_at_date, :ends_at_date, :subject_id, :receiver_id, :recurring).merge({sender_id: current_user.id})
   end
 end

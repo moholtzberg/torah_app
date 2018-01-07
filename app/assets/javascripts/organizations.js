@@ -38,4 +38,27 @@ jQuery(document).on('turbolinks:load', () => {
       per_page: 10
     });
   }
+
+  if ($('#current-user-organizations-list').length > 0) {
+    const getData = (page) => ({
+      page: page,
+      search: {
+        name: $('#name').val()
+      },
+      filters: {
+        order_by: $('#order_by').val(),
+        confirmed: $('#confirmed').prop('checked'),
+        unconfirmed: $('#unconfirmed').prop('checked'),
+        foundations: $('#founder').prop('checked'),
+        member: $('#member').prop('checked')
+      }
+    });
+
+    new InfinityList({
+      selector: "#current-user-organizations-list",
+      url: "/organizations/home_fetch",
+      getData: getData,
+      per_page: 10
+    });
+  }
 });

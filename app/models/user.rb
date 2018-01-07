@@ -1,6 +1,7 @@
 class User < ApplicationRecord
   include Filterable
   include Searchable
+  include PublicActivity::Common
 
   scope :order_by, -> (param) { sort_by(param) }
 
@@ -15,8 +16,6 @@ class User < ApplicationRecord
   has_many :subjects, through: :interests
   has_many :chatrooms, through: :participatings
   has_many :messages
-  has_many :friendships, dependent: :destroy
-  has_many :friends, through: :friendships
   has_many :lessons, foreign_key: :sender_id, dependent: :destroy
   has_many :lessons, foreign_key: :receiver_id, dependent: :destroy
   has_many :foundations, class_name: "Organization", foreign_key: :founder_id
@@ -31,6 +30,7 @@ class User < ApplicationRecord
   validates :name, presence: true, length: { in: 5..40 }
   validate :availability_should_be_inside_availability_range, on: :update, if: :availability_is_present?
 
+  has_friendship
   mount_uploader :avatar, AvatarUploader
   devise :database_authenticatable, :registerable, :confirmable,
          :recoverable, :rememberable, :trackable, :validatable,
@@ -54,12 +54,8 @@ class User < ApplicationRecord
   end
 
   def relation_with user
-    has_invited_user = Friendship.find_by(user_id: id, friend_id: user.id)
-    invited_by_user = Friendship.find_by(user_id: user.id, friend_id: id)
-    return "friends" if has_invited_user && invited_by_user
-    return "invited_user" if has_invited_user && !invited_by_user
-    return "invited_by_user" if !has_invited_user && invited_by_user
-    return "not_friends" if !has_invited_user && !invited_by_user
+    relation = HasFriendship::Friendship.find_relation(self, user)[0]
+    relation.status if relation
   end
 
   def self.sort_by param
@@ -70,7 +66,40 @@ class User < ApplicationRecord
     self.order(order_params[param])
   end
 
+  def available? time_range
+    t = to_availability_week(time_range)
+    self.availability.each do |r|
+      return true if r.include?(t)
+    end
+    false
+  end
+
+  def unavailable? time_range
+    !self.available?(time_range)
+  end
+
+  def busy? time_range
+    t = to_availability_week(time_range)
+    return true if
+     self.lessons.exists?([
+       "(time && tstzrange(:begin, :end)) AND confirmed_at IS NOT NULL",
+       begin: time_range.begin, end: time_range.end
+     ]) ||
+     self.lessons.exists?([
+       "(time && tstzrange(:begin, :end)) AND confirmed_at IS NOT NULL AND recurring IS NOT NULL",
+       begin: t.begin, end: t.end
+     ])
+     false
+  end
+
   private
+
+  def to_availability_week range
+    b = range.begin
+    e = range.end
+    Time.zone.parse("1996-01-01 #{b.to_s(:time)}") + (b.wday - 1).days ..
+    Time.zone.parse("1996-01-01 #{e.to_s(:time)}") + (e.wday - 1).days
+  end
 
   def set_default_availability
     a = []

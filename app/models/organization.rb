@@ -1,6 +1,7 @@
 class Organization < ApplicationRecord
   include Filterable
   include Searchable
+  include PublicActivity::Common
 
   scope :order_by, -> (param) { sort_by(param) }
   scope :confirmed, -> { where.not(confirmed_at: nil) }

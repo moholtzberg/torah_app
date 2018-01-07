@@ -1,3 +1,8 @@
+<% if message.event? %>
+<div class="event-message">
+  <%= message.body %> <span class="time"><%= message_time(message.created_at) %></span>
+</div>
+<% else %>
 <div class="media msg" data-id="<%= message.id %>" data-author-id="<%= message.user.id %>">
 
     <%= link_to message.user, class: "pull-left" do %>
@@ -36,3 +41,4 @@
         </div>
     </div>
 </div>
+<% end %>

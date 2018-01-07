@@ -6,7 +6,8 @@ jQuery(document).on('turbolinks:load', () => {
         name: $('#name').val(),
         country: $('#country').val(),
         city: $('#city').val(),
-        state: $('#state').val()
+        state: $('#state').val(),
+        language: $('#language').val()
       },
       filters: {
         online: $('#online').prop('checked'),
@@ -16,13 +17,15 @@ jQuery(document).on('turbolinks:load', () => {
 
     new InfinityList({
       selector: "#users-list",
-      url: "/users/fetch_users",
+      url: "/users/fetch",
       getData: getData,
       per_page: 25
     });
   }
 
-if ($('#edit_user').length > 0) {
+if ($('.edit_user').length > 0) {
+  const languageInput = createLanguagePicker("#user_language");
+
   $('input.time').timepicker({
     showDuration: true,
     timeFormat: 'H:i',
@@ -31,10 +34,10 @@ if ($('#edit_user').length > 0) {
 
   $('.day').datepair();
 
-  $('#edit_user').on('submit', (e) => {
-    $('.day').each((i, e) => {
-      const range = `${$(e).find('.start').val()}..${$(e).find('.end').val()}`;
-      $(e).find('#user_availability').val(range);
+  $('.edit_user').on('submit', (e) => {
+    $('.day').each((i, day) => {
+      const range = `${$(day).find('.start').val()}..${$(day).find('.end').val()}`;
+      $(day).find('#user_availability').val(range);
     });
   });
 }

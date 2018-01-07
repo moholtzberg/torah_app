@@ -18,6 +18,7 @@
         <div class="lesson-time">
           Lesson will take place from <%= lesson_time(lesson.time.begin) %> to <%= lesson_time(lesson.time.end) %>
           <%= "| Recurring" if lesson.recurring? %>
+          <%= "| Private" if lesson.private? %>
         </div>
 
         <% unless lesson.confirmed_at %>
@@ -35,7 +36,8 @@
 
       <div class="lesson-time">
         Lesson will take place from <%= lesson_time(lesson.time.begin) %> to <%= lesson_time(lesson.time.end) %>
-         <%= "| Recurring" if lesson.recurring? %>
+        <%= "| Recurring" if lesson.recurring? %>
+        <%= "| Private" if lesson.private? %>
       </div>
 
       <% unless lesson.confirmed_at %>

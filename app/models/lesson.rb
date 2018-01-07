@@ -8,7 +8,7 @@ class Lesson < ApplicationRecord
   validate :sender_cannot_be_busy_on_lesson_time
   validate :receiver_cannot_be_busy_on_lesson_time
   validate :time_cannot_be_in_the_past
-  validate :sender_should_be_available_on_lesson_time
+  #validate :sender_should_be_available_on_lesson_time
   validate :receiver_should_be_available_on_lesson_time
 
   before_validation :serialize_time, on: :create
@@ -33,19 +33,11 @@ class Lesson < ApplicationRecord
   end
 
   def sender_should_be_available_on_lesson_time
-    t = to_availability_week(time)
-    sender.availability.each do |r|
-      return true if r.include?(t)
-    end
-    errors.add(:time, "#{sender.name} is not available at that time")
+    errors.add(:time, "#{sender.name} is not available at that time") unless sender.available?(time)
   end
 
   def receiver_should_be_available_on_lesson_time
-    t = to_availability_week(time)
-    receiver.availability.each do |r|
-      return true if r.include?(t)
-    end
-    errors.add(:time, "#{receiver.name} is not available at that time")
+    errors.add(:time, "#{receiver.name} is not available at that time") unless receiver.available?(time)
   end
 
   def to_availability_week range
@@ -56,30 +48,11 @@ class Lesson < ApplicationRecord
   end
 
   def sender_cannot_be_busy_on_lesson_time
-    t = to_availability_week(time)
-    errors.add(:time, "#{sender.name} is busy at that time") if
-     sender.lessons.exists?([
-       "(time && tstzrange(:begin, :end)) AND confirmed_at IS NOT NULL",
-       begin: time.begin, end: time.end
-     ]) ||
-     sender.lessons.exists?([
-       "(time && tstzrange(:begin, :end)) AND confirmed_at IS NOT NULL AND recurring IS NOT NULL",
-       begin: t.begin, end: t.end
-     ])
+    errors.add(:time, "#{sender.name} is busy at that time") if sender.busy?(time)
   end
 
   def receiver_cannot_be_busy_on_lesson_time
-    t = to_availability_week(time)
-
-    errors.add(:time, "#{receiver.name} is busy at that time") if
-      receiver.lessons.exists?([
-        "(time && tstzrange(:begin, :end)) AND confirmed_at IS NOT NULL",
-        begin: time.begin, end: time.end
-      ]) ||
-      receiver.lessons.exists?([
-        "(time && tstzrange(:begin, :end)) AND confirmed_at IS NOT NULL AND recurring IS NOT NULL",
-        begin: t.begin, end: t.end
-      ])
+  errors.add(:time, "#{receiver.name} is busy at that time") if receiver.busy?(time)
   end
 
   def time_cannot_be_in_the_past
@@ -95,6 +68,6 @@ class Lesson < ApplicationRecord
 
   def self.time_for current_user, user
     self.select("time, recurring").where("(sender_id = ? OR receiver_id = ? OR sender_id = ? OR receiver_id = ?) AND confirmed_at IS NOT NULL",
-      current_user.id ,current_user.id, user.id, user.id).to_json
+      current_user.id ,current_user.id, user.id, user.id)
   end
 end

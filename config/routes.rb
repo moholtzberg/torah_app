@@ -1,4 +1,7 @@
 Rails.application.routes.draw do
+  root "subjects#home"
+  get :home, to: "users#home"
+
   devise_for :users
 
   namespace :api do
@@ -58,11 +61,13 @@ Rails.application.routes.draw do
     end
   end
 
-  root "subjects#home"
-
-  get "organizations/fetch", to: "organizations#fetch"
-  get "organizations/home", to: "organizations#home"
   resources :organizations do
+    collection do
+      get :fetch
+      get :home
+      get :home_fetch
+    end
+
     resources :posts
     post "send_invite", to: "memberships#send_invite", as: "send_invite"
     patch "accept_invite/:user_id", to: "memberships#accept_invite", as: "accept_invite"
@@ -74,30 +79,41 @@ Rails.application.routes.draw do
   #devise_for :users
   get "subjects/fetch", to: "subjects#fetch"
   resources :subjects
-
-  scope "users" do
-    get "fetch_users", to: "users#fetch_users"
-    post "add_friend/:id", to: "users#add_friend", as: "add_friend"
-    delete "remove_friend/:id", to: "users#remove_friend", as: "remove_friend"
-  end
-
   resources :users, only: [:show, :index, :edit, :update] do
+    collection do
+      get :fetch
+    end
+    post :friend_request
+    post :accept_request
+    delete :remove_friend
+
     patch :change_password
     get :favorites
-    resources :lessons, only: [:create, :new, :index, :destroy]
+    resources :lessons, only: [:create, :new, :index, :destroy] do
+      collection do
+        get :subjects
+        get :fetch
+      end
+    end
   end
 
-  get "fetch_lessons", to: "lessons#fetch_lessons", as: "fetch_lessons"
-  get "lessons/fetch_subjects", to: "lessons#fetch_subjects"
-  post "lessons/:id/accept_invite", to: "lessons#accept_invite", as: "accept_lesson_invite"
-  delete "lessons/:id/decline_invite", to: "lessons#decline_invite", as: "decline_lesson_invite"
+  resources :lessons, only: [] do
+    collection do
+      get :check_if_current_user_is_available
+      get :subjects
+    end
+
+    post :accept_invite
+    delete :decline_invite
+  end
 
   post "add_subject/:id", to: "users#add_subject", as: "add_subject"
   delete "remove_subject/:id", to: "users#remove_subject", as: "remove_subject"
 
   resources :chatrooms, only: [:index, :show] do
+    post :end_video_chat
     post "add_participant/:user_id", to: "chatrooms#add_participant", as: "add_participant"
-    get "fetch_users", to: "chatrooms#fetch_users", as: "fetch_users"
+    get :fetch_users
   end
   post "chatrooms/:user_id", to: "chatrooms#create", as: "new_chatroom"
 

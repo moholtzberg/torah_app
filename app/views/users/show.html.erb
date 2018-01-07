@@ -38,14 +38,14 @@
 
     <div id="relation-with-user">
       <% case current_user.relation_with @user %>
-        <% when "friends" %>
-          <%= button_to "Remove from friends", remove_friend_path(@user), class: "btn btn-danger", method: :delete %>
-        <% when "not_friends" %>
-          <%= button_to "Add to friends", add_friend_path(@user), class: "btn btn-success" %>
-        <% when "invited_user" %>
-          <%= button_to "Cancel invite", remove_friend_path(@user), class: "btn btn-danger",method: :delete %>
-        <% when "invited_by_user" %>
-          <%= button_to "Accept invite", add_friend_path(@user), class: "btn btn-success" %>
+        <% when "accepted" %>
+          <%= button_to "Remove from friends", user_remove_friend_path(@user), class: "btn btn-danger", method: :delete %>
+        <% when "pending" %>
+          <%= button_to "Cancel invite", user_remove_friend_path(@user), class: "btn btn-danger",method: :delete %>
+        <% when "requested" %>
+          <%= button_to "Accept invite", user_accept_request_path(@user), class: "btn btn-success" %>
+        <% else %>
+          <%= button_to "Add to friends", user_friend_request_path(@user), class: "btn btn-success" %>
       <% end %>
     </div>
   <% end %>
@@ -54,6 +54,7 @@
   <p><div class="glyphicon glyphicon-map-marker"></div> State/province: <%= @user.state %></p>
   <p><div class="glyphicon glyphicon-home"></div> City: <%= @user.city %></p>
   <p><div class="glyphicon glyphicon-time"></div> Time zone: <%= @user.time_zone %></p>
+  <p><div class="glyphicon glyphicon-user"></div> Language: <%= @user.language %></p>
 </div>
 </div>
 
@@ -72,7 +73,7 @@
   <% @user.availability.each_with_index do |v, i| %>
     <div class="col-lg-3 col-sm-4 col-xs-6">
       <h5><%= Date::DAYNAMES[i] %></h5>
-      <p><%= v.begin.localtime.strftime("%H:%M") %>-<%= v.end.localtime.strftime("%H:%M") %></p>
+      <p><%= v.begin.in_time_zone.strftime("%H:%M") %>-<%= v.end.in_time_zone.strftime("%H:%M") %></p>
     </div>
   <% end %>
 </div>

@@ -107,6 +107,11 @@ jQuery(document).on('turbolinks:load', () => {
   }
 
   function disconnectFromVideoChat(room) {
+    console.log("Participants left ",room.participants.size);
+    if (room.participants.size == 0) {
+      $.post(`/chatrooms/${chatroom_id}/end_video_chat`)
+    }
+
     room.disconnect();
     hideVideoChat();
     $('#call-button').show();

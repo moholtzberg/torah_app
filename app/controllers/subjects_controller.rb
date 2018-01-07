@@ -15,6 +15,7 @@ class SubjectsController < ApplicationController
   end
 
   def home
+    redirect_to home_url if current_user
     @featured = Subject.where(featured: true)
   end
 

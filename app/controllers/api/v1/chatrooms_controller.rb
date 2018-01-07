@@ -67,7 +67,7 @@ class Api::V1::ChatroomsController < Api::V1::BaseController
   def create_room(user)
     chatroom = Chatroom.create
     chatroom.add_participant(user)
-    chatroom.add_participant(current_user)
+    chatroom.add_participant(current_user, notify: false)
     chatroom
   end
 end

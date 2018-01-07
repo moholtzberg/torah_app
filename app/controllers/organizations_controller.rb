@@ -1,17 +1,27 @@
 class OrganizationsController < ApplicationController
-  before_action :authenticate_user!, only: [:new, :create]
+  before_action :authenticate_user!, only: [:new, :create, :home, :home_fetch]
   before_action :set_organization, only: [:show]
   before_action :set_organization_by_name, only: [:show_by_name]
   before_action :authorizate_founder, only: [:show, :show_by_name], unless: :organization_is_confirmed_or_current_user_is_admin
 
-  def index
-  end
-
   def fetch
     organizations = Organization.confirmed.filter(filters_params).search(search_params)
       .page(params[:page]).per(10)
-    render organizations,
-      current_user: current_user
+    render organizations
+  end
+
+  def home_fetch
+    if params[:filters][:foundations] == "true"
+    organizations = current_user.foundations.filter(filters_params).search(search_params)
+      .page(params[:page]).per(10)
+    elsif params[:filters][:member] == "true"
+      organizations = current_user.confirmed_organizations.filter(filters_params).search(search_params)
+        .page(params[:page]).per(10)
+    else
+      organizations = current_user.organizations.filter(filters_params).search(search_params)
+        .page(params[:page]).per(10)
+    end
+    render organizations
   end
 
   def show
@@ -50,7 +60,7 @@ class OrganizationsController < ApplicationController
   end
 
   def filters_params
-    params[:filters]? params.require(:filters).permit(:order_by) : {}
+    params[:filters]? params.require(:filters).permit(:order_by, :confirmed, :unconfirmed) : {}
   end
 
   def search_params

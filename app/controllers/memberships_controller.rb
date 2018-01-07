@@ -25,8 +25,10 @@ class MembershipsController <ApplicationController
   end
 
   def accept_invite
-    membership = @organization.memberships.find_by(user_id: params[:user_id])
+    user = User.find(params[:user_id])
+    membership = @organization.memberships.find_by(user_id: user.id)
     if membership.update_attributes(confirmed_at: Time.current)
+      @organization.create_activity(key: 'organization.accept_invite', owner: user)
       redirect_to organization_members_url(@organization), notice: "User is added to organization"
     else
       redirect_to organization_members_url(@organization), notice: "Something gone wrong"
